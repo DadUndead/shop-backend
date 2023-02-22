@@ -4,10 +4,10 @@
   "description": "A product service for unicorn-guitar shop",
   "main": "serverless.ts",
   "scripts": {
-    "start": "cross-env STAGE=dev serverless offline start",
+    "start": "cross-env STAGE=dev sls offline start",
     "test": "jest",
     "test:coverage": "jest --collect-coverage",
-    "deploy": "npm run test && serverless deploy"
+    "deploy": "npm run test && sls deploy"
   },
   "engines": {
     "node": ">=14.15.0"
@@ -15,7 +15,6 @@
   "dependencies": {
     "@middy/core": "^3.4.0",
     "@middy/http-json-body-parser": "^3.4.0",
-    "serverless-aws-static-file-handler": "^4.0.2"
   },
   "devDependencies": {
     "@serverless/typescript": "^3.0.0",
