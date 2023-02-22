@@ -1,34 +1,34 @@
 [
   {
     "id": "1",
-    "name": "Acoustic Guitar",
-    "price": 299.99,
-    "description": "A versatile six-string guitar that produces a warm sound perfect for strumming or fingerpicking.",
-    "image_url": "https://example.com/acoustic-guitar.jpg",
-    "category": "Guitars"
+    "title": "Fender Stratocaster",
+    "price": 999.99,
+    "description": "A classic electric guitar used by countless legendary musicians.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?1",
+    "category": "Electric"
   },
   {
     "id": "2",
-    "name": "Electric Guitar",
-    "price": 399.99,
-    "description": "A sleek six-string guitar that produces a wide range of sounds, from clean tones to distortion.",
-    "image_url": "https://example.com/electric-guitar.jpg",
-    "category": "Guitars"
+    "title": "Gibson Les Paul",
+    "price": 1499.99,
+    "description": "A solid-body electric guitar with a distinctive sound and look.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?2",
+    "category": "Electric"
   },
   {
     "id": "3",
-    "name": "Drum Set",
-    "price": 599.99,
-    "description": "A complete set of drums with cymbals, perfect for drummers of all levels.",
-    "image_url": "https://example.com/drum-set.jpg",
-    "category": "Drums"
+    "title": "Martin D-28",
+    "price": 1999.99,
+    "description": "A classic acoustic guitar known for its rich, full sound and exceptional craftsmanship.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?3",
+    "category": "Acoustic"
   },
   {
     "id": "4",
-    "name": "Keyboard",
-    "price": 499.99,
-    "description": "A versatile keyboard with weighted keys and a wide range of sounds, perfect for both beginners and professionals.",
-    "image_url": "https://example.com/keyboard.jpg",
-    "category": "Keyboards"
+    "title": "Taylor 814ce",
+    "price": 2799.99,
+    "description": "An elegant acoustic-electric guitar with exceptional sound quality and playability.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?4",
+    "category": "Acoustic"
   }
 ]

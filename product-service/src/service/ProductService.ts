@@ -10,7 +10,7 @@ export default class ProductService {
     return asyncAction(productsListMock)
   }
 
-  async getProduct(id: string): Promise<Product | undefined> {
+  async getProductById(id: string): Promise<Product | undefined> {
     return asyncAction(productsListMock.find(item => item.id===id))
   }
 }

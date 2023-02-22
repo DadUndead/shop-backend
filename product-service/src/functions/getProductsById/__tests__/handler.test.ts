@@ -1,16 +1,16 @@
 import productsService from "../../../service";
 import {formatJSONResponse} from "@libs/api-gateway";
-import {getProduct} from "@functions/getProduct/handler";
+import {getProductsById} from "@functions/getProductsById/handler";
 import productMock from '../../../mocks/product.mock.json'
 
 jest.mock('../../../service', () => ({
   __esModule: true,
   default: {
-    getProduct: jest.fn(),
+    getProductById: jest.fn(),
   },
 }));
 
-describe('getProduct lambda', () => {
+describe('getProductsById lambda', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -20,12 +20,12 @@ describe('getProduct lambda', () => {
     const item = {...productMock, id: productId};
     const event = {pathParameters: {productId}} as any;
 
-    (productsService.getProduct as jest.Mock).mockResolvedValueOnce(item);
+    (productsService.getProductById as jest.Mock).mockResolvedValueOnce(item);
 
-    const result = await getProduct(event, null, null);
+    const result = await getProductsById(event, null, null);
 
-    expect(productsService.getProduct).toHaveBeenCalledTimes(1);
-    expect(productsService.getProduct).toHaveBeenCalledWith(productId);
+    expect(productsService.getProductById).toHaveBeenCalledTimes(1);
+    expect(productsService.getProductById).toHaveBeenCalledWith(productId);
     expect(result).toEqual(formatJSONResponse(200, item));
   });
 
@@ -33,12 +33,12 @@ describe('getProduct lambda', () => {
     const productId = '123';
     const event = {pathParameters: {productId}} as any;
 
-    (productsService.getProduct as jest.Mock).mockResolvedValueOnce(undefined);
+    (productsService.getProductById as jest.Mock).mockResolvedValueOnce(undefined);
 
-    const result = await getProduct(event, null, null);
+    const result = await getProductsById(event, null, null);
 
-    expect(productsService.getProduct).toHaveBeenCalledTimes(1);
-    expect(productsService.getProduct).toHaveBeenCalledWith(productId);
+    expect(productsService.getProductById).toHaveBeenCalledTimes(1);
+    expect(productsService.getProductById).toHaveBeenCalledWith(productId);
     expect(result).toEqual(formatJSONResponse(404, undefined));
   });
 
@@ -47,12 +47,12 @@ describe('getProduct lambda', () => {
     const event = {pathParameters: {productId}} as any;
     const error = new Error('Internal Server Error');
 
-    (productsService.getProduct as jest.Mock).mockRejectedValueOnce(error);
+    (productsService.getProductById as jest.Mock).mockRejectedValueOnce(error);
 
-    const result = await getProduct(event, null, null);
+    const result = await getProductsById(event, null, null);
 
-    expect(productsService.getProduct).toHaveBeenCalledTimes(1);
-    expect(productsService.getProduct).toHaveBeenCalledWith(productId);
+    expect(productsService.getProductById).toHaveBeenCalledTimes(1);
+    expect(productsService.getProductById).toHaveBeenCalledWith(productId);
     expect(result).toEqual(formatJSONResponse(500, error));
   });
 });

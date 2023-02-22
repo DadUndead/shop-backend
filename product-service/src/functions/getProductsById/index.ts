@@ -7,6 +7,7 @@ export default {
       http: {
         method: 'get',
         path: 'product/{productId}',
+        cors: true,
         summary: "Get Product",
         description: "Returns a product by id",
         responseData: {

@@ -1,7 +1,7 @@
 import type {AWS} from '@serverless/typescript';
 
 import getProductsList from '@functions/getProductsList';
-import getProduct from "@functions/getProduct";
+import getProductsById from "@functions/getProductsById";
 
 const stage = process.env.STAGE!;
 console.log({stage});
@@ -28,8 +28,8 @@ const serverlessConfiguration: AWS = {
     },
   },
   functions: {
+    getProductsById,
     getProductsList,
-    getProduct,
   },
   package: {
     individually: true,

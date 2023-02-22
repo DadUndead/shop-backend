@@ -23,13 +23,13 @@ describe('ProductService', () => {
     it('should return a product for a valid id', async () => {
       const productId = '1';
       const expectedProduct = productsListMock.find((product) => product.id===productId);
-      const result = await productService.getProduct(productId);
+      const result = await productService.getProductById(productId);
       expect(result).toEqual(expectedProduct);
     });
 
     it('should return undefined for an invalid id', async () => {
       const productId = '100';
-      const result = await productService.getProduct(productId);
+      const result = await productService.getProductById(productId);
       expect(result).toBeUndefined();
     });
   });
