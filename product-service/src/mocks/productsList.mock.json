@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1",
+    "name": "Acoustic Guitar",
+    "price": 299.99,
+    "description": "A versatile six-string guitar that produces a warm sound perfect for strumming or fingerpicking.",
+    "image_url": "https://example.com/acoustic-guitar.jpg",
+    "category": "Guitars"
+  },
+  {
+    "id": "2",
+    "name": "Electric Guitar",
+    "price": 399.99,
+    "description": "A sleek six-string guitar that produces a wide range of sounds, from clean tones to distortion.",
+    "image_url": "https://example.com/electric-guitar.jpg",
+    "category": "Guitars"
+  },
+  {
+    "id": "3",
+    "name": "Drum Set",
+    "price": 599.99,
+    "description": "A complete set of drums with cymbals, perfect for drummers of all levels.",
+    "image_url": "https://example.com/drum-set.jpg",
+    "category": "Drums"
+  },
+  {
+    "id": "4",
+    "name": "Keyboard",
+    "price": 499.99,
+    "description": "A versatile keyboard with weighted keys and a wide range of sounds, perfect for both beginners and professionals.",
+    "image_url": "https://example.com/keyboard.jpg",
+    "category": "Keyboards"
+  }
+]

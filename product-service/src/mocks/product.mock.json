@@ -1,0 +1,8 @@
+{
+  "id": "1",
+  "name": "Acoustic Guitar",
+  "price": 299.99,
+  "description": "A versatile six-string guitar that produces a warm sound perfect for strumming or fingerpicking.",
+  "image_url": "https://example.com/acoustic-guitar.jpg",
+  "category": "Guitars"
+}
