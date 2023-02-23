@@ -1,5 +1,8 @@
 # A product-service for Unicorn Guitar shop
 
+[Swagger UI](https://jx5a3hc7j4.execute-api.eu-west-1.amazonaws.com/dev/swagger) - an API documentation for the service
+
+
 ## Installation/deployment instructions
 
 Follow the instructions below to deploy your project.
