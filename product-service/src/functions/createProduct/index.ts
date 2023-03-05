@@ -5,27 +5,29 @@ export default {
   events: [
     {
       http: {
-        method: 'get',
-        path: 'products/{productId}',
+        method: 'post',
+        path: 'products',
         cors: true,
-        summary: "Get Product",
-        description: "Returns a product by id",
+        summary: "Creates a new Product",
+        description: "Creates a new Product",
+        requestData: {
+          schema: {
+            'application/json': '${file(src/functions/createProduct/schema.json)}'
+          }
+        },
         responseData: {
           200: {
-            description: "Returns a product by id",
+            description: "Creates a new Product",
             bodyType: 'Product'
           },
           400: {
             description: 'Request failed'
           },
-          404: {
-            description: 'Product not found'
-          },
           500: {
             description: 'Server Error'
           }
         }
-      },
-    },
-  ],
+      }
+    }
+  ]
 };

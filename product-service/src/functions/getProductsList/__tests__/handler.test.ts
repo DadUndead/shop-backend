@@ -1,5 +1,5 @@
 import productsService from "../../../service";
-import {formatJSONResponse} from "@libs/api-gateway";
+import {formatErrorResponse, formatSuccessResponse} from "@libs/api-gateway";
 import {getProductsList} from "@functions/getProductsList/handler";
 import productsListMock from '../../../mocks/productsList.mock.json'
 
@@ -24,7 +24,7 @@ describe('getProductsList lambda', () => {
     const result = await getProductsList(event, null, null);
 
     expect(productsService.getProductsList).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(formatJSONResponse(200, items));
+    expect(result).toEqual(formatSuccessResponse(items));
   });
 
   it('should return 500 when an error occurs', async () => {
@@ -36,6 +36,6 @@ describe('getProductsList lambda', () => {
     const result = await getProductsList(event, null, null);
 
     expect(productsService.getProductsList).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(formatJSONResponse(500, error));
+    expect(result).toEqual(formatErrorResponse(error));
   });
 });
