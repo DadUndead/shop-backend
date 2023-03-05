@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1",
+    "title": "Fender Stratocaster",
+    "price": 999.99,
+    "description": "A classic electric guitar used by countless legendary musicians.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?1",
+    "category": "Electric"
+  },
+  {
+    "id": "2",
+    "title": "Gibson Les Paul",
+    "price": 1499.99,
+    "description": "A solid-body electric guitar with a distinctive sound and look.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?2",
+    "category": "Electric"
+  },
+  {
+    "id": "3",
+    "title": "Martin D-28",
+    "price": 1999.99,
+    "description": "A classic acoustic guitar known for its rich, full sound and exceptional craftsmanship.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?3",
+    "category": "Acoustic"
+  },
+  {
+    "id": "4",
+    "title": "Taylor 814ce",
+    "price": 2799.99,
+    "description": "An elegant acoustic-electric guitar with exceptional sound quality and playability.",
+    "image_url": "https://source.unsplash.com/collection/10260627/480x480?4",
+    "category": "Acoustic"
+  }
+]
