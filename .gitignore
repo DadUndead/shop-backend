@@ -9,4 +9,5 @@ jspm_packages
 .esbuild
 coverage/
 swagger/
-*/.env*
+product-service/.env.local
+.migrate2

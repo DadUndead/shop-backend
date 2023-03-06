@@ -8,7 +8,9 @@
     "test": "jest",
     "test:coverage": "jest --collect-coverage",
     "deploy": "npm run test && sls deploy",
-    "db-populate": "ts-node ddb-table-populate.ts"
+    "migrate:up": "serverless migrate up",
+    "migrate:down": "serverless migrate down",
+    "migrate:new": "serverless migrate create -n"
   },
   "engines": {
     "node": ">=14.15.0"

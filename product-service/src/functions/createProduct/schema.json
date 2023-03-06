@@ -10,7 +10,7 @@
       "type": "string"
     },
     "price": {
-      "type": "integer"
+      "type": "number"
     },
     "image_url": {
       "type": "string"

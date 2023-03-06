@@ -1,3 +1,11 @@
+export interface CreateProductParams {
+  title: string;
+  price: number;
+  description: string;
+  image_url: string;
+  count: number;
+}
+
 export interface Product {
   id: string;
   title: string;
@@ -8,5 +16,3 @@ export interface Product {
 }
 
 export type ProductsList = Product[]
-
-export type CreateProductParams = Omit<Product, 'id'>

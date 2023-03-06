@@ -11,10 +11,10 @@ const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '3',
   plugins: [
-    'serverless-migrate-plugin',
     'serverless-auto-swagger',
     'serverless-esbuild',
-    'serverless-offline'
+    'serverless-offline',
+    'serverless-migrate-plugin'
   ],
   provider: {
     name: 'aws',
@@ -29,9 +29,6 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
 
-      PRODUCTS_TABLE_NAME: {Ref: 'ug-shop-products'},
-      STOCK_TABLE_NAME: {Ref: 'ug-shop-stock'},
-
       ENV_STAGE: "${opt:stage, 'dev'}",
       PGHOST: "${self:custom.dotenvVars.PGHOST, env:PGHOST, ''}",
       PGUSER: "${self:custom.dotenvVars.PGUSER, env:PGUSER, ''}",
@@ -39,27 +36,6 @@ const serverlessConfiguration: AWS = {
       PGPASSWORD: "${self:custom.dotenvVars.PGPASSWORD, env:PGPASSWORD, ''}",
       PGPORT: "${self:custom.dotenvVars.PGPORT, env:PGPORT, ''}",
     },
-    iamRoleStatements: [
-      {
-        Effect: 'Allow',
-        Action: [
-          'dynamodb:DescribeTable',
-          'dynamodb:Query',
-          'dynamodb:Scan',
-          'dynamodb:GetItem',
-          'dynamodb:PutItem',
-          'dynamodb:DeleteItem',
-        ],
-        Resource: [
-          {
-            "Fn::GetAtt": [
-              'ug-shop-products',
-              'ug-shop-stock'
-            ]
-          }
-        ]
-      }
-    ]
   },
   functions: {
     getProductsById,
@@ -70,6 +46,7 @@ const serverlessConfiguration: AWS = {
     individually: true,
   },
   custom: {
+    dotenvVars: '${file(configs.js)}',
     autoswagger: {
       apiType: 'http',
       generateSwaggerOnDeploy: true,
@@ -82,7 +59,7 @@ const serverlessConfiguration: AWS = {
       bundle: true,
       minify: false,
       sourcemap: true,
-      exclude: ['aws-sdk'],
+      exclude: ['aws-sdk', 'pg-native'],
       target: 'node14',
       define: {'require.resolve': undefined},
       platform: 'node',
@@ -102,6 +79,22 @@ const serverlessConfiguration: AWS = {
         // COMPLEX_VAR: "${self:provider.env.ANOTHER_ENV, 'unexistent'}",
         // EXAMPLE_ENV: false,
       }
+    },
+  },
+  resources: {
+    Resources: {
+      PostgreSqlRDSInstance: {
+        Type: 'AWS::RDS::DBInstance',
+        Properties: {
+          MasterUsername: "${self:custom.dotenvVars.PGUSER, env:PGUSER, ''}",
+          MasterUserPassword: "${self:custom.dotenvVars.PGPASSWORD, env:PGPASSWORD, ''}",
+          AllocatedStorage: 20,
+          DBName: "${self:custom.dotenvVars.PGDATABASE, env:PGDATABASE, ''}",
+          DBInstanceClass: 'db.t4g.small',
+          Engine: 'postgres',
+          PubliclyAccessible: true
+        },
+      },
     }
   }
 };

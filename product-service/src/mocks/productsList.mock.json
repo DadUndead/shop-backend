@@ -5,6 +5,7 @@
     "price": 999.99,
     "description": "A classic electric guitar used by countless legendary musicians.",
     "image_url": "https://source.unsplash.com/collection/10260627/480x480?1",
+    "count": 10
   },
   {
     "id": "2",
@@ -12,6 +13,7 @@
     "price": 1499.99,
     "description": "A solid-body electric guitar with a distinctive sound and look.",
     "image_url": "https://source.unsplash.com/collection/10260627/480x480?2",
+    "count": 100
   },
   {
     "id": "3",
@@ -19,6 +21,7 @@
     "price": 1999.99,
     "description": "A classic acoustic guitar known for its rich, full sound and exceptional craftsmanship.",
     "image_url": "https://source.unsplash.com/collection/10260627/480x480?3",
+    "count": 1
   },
   {
     "id": "4",
@@ -26,5 +29,6 @@
     "price": 2799.99,
     "description": "An elegant acoustic-electric guitar with exceptional sound quality and playability.",
     "image_url": "https://source.unsplash.com/collection/10260627/480x480?4",
+    "count": 0
   }
 ]

@@ -10,8 +10,9 @@ export default {
         cors: true,
         summary: "Creates a new Product",
         description: "Creates a new Product",
-        requestData: {
-          schema: {
+        bodyType: 'CreateProductParams',
+        request: {
+          schemas: {
             'application/json': '${file(src/functions/createProduct/schema.json)}'
           }
         },
