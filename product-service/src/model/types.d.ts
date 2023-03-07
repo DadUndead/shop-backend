@@ -2,7 +2,7 @@ export interface CreateProductParams {
   title: string;
   price: number;
   description: string;
-  image_url: string;
+  image_url?: string;
   count: number;
 }
 

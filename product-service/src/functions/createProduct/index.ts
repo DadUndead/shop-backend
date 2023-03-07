@@ -11,11 +11,6 @@ export default {
         summary: "Creates a new Product",
         description: "Creates a new Product",
         bodyType: 'CreateProductParams',
-        request: {
-          schemas: {
-            'application/json': '${file(src/functions/createProduct/schema.json)}'
-          }
-        },
         responseData: {
           200: {
             description: "Creates a new Product",
