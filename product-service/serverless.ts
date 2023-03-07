@@ -90,7 +90,7 @@ const serverlessConfiguration: AWS = {
           MasterUserPassword: "${self:custom.dotenvVars.PGPASSWORD, env:PGPASSWORD, ''}",
           AllocatedStorage: 20,
           DBName: "${self:custom.dotenvVars.PGDATABASE, env:PGDATABASE, ''}",
-          DBInstanceClass: 'db.t4g.small',
+          DBInstanceClass: 'db.t3.micro',
           Engine: 'postgres',
           PubliclyAccessible: true
         },
