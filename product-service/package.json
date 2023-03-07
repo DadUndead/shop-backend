@@ -22,6 +22,7 @@
     "@types/pg": "^8.6.6",
     "@types/winston": "^2.4.4",
     "pg": "^8.9.0",
+    "pg-tx": "^1.0.1",
     "winston": "^3.8.2"
   },
   "devDependencies": {

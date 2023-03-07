@@ -1,30 +1,36 @@
 import {CreateProductParams, Product} from "../model/types";
-import db from 'pg';
+import db, {Pool} from 'pg';
+import tx from 'pg-tx';
 
 export default class ProductService {
   private productsTableName = 'products'
   private stocksTableName = 'stocks'
 
-  constructor(private dbClient: db.Client) {
+  private readonly pool: Pool;
+
+  constructor() {
+    this.pool = new db.Pool();
   }
 
   async getProductsList(): Promise<Product[]> {
-    const query: db.QueryConfig = {
-      text: `
-          SELECT p.*, s.count
-          FROM ${this.productsTableName} p
-                   JOIN ${this.stocksTableName} s ON p.id = s.product_id;
-      `,
-    }
+    const query = `
+        SELECT p.*, CAST(p.price AS float), s.count
+        FROM ${this.productsTableName} p
+                 JOIN ${this.stocksTableName} s ON p.id = s.product_id;
+    `;
 
-    const result = await this.dbClient.query(query);
-    return result.rows || null;
+    let result = null;
+    await tx(this.pool, async (db) => {
+      result = await db.query(query);
+    });
+
+    return result?.rows || null;
   }
 
   async getProductById(id: string): Promise<Product | undefined> {
     const query: db.QueryConfig = {
       text: `
-          SELECT p.*, s.count
+          SELECT p.*, CAST(p.price AS float), s.count
           FROM ${this.productsTableName} p
                    JOIN ${this.stocksTableName} s ON p.id = s.product_id
           WHERE p.id = $1;
@@ -32,8 +38,12 @@ export default class ProductService {
       values: [id],
     }
 
-    const result = await this.dbClient.query(query);
-    return result.rows[0] || null;
+    let result = null;
+    await tx(this.pool, async (db) => {
+      result = await db.query(query);
+    });
+
+    return result?.rows[0] || null;
   }
 
   async createProduct(createProductParams: CreateProductParams): Promise<Product> {
@@ -65,7 +75,11 @@ export default class ProductService {
       ],
     };
 
-    const result = await this.dbClient.query(query);
-    return result.rows[0] || null;
+    let result = null;
+    await tx(this.pool, async (db) => {
+      result = await db.query(query);
+    });
+
+    return result?.rows[0] || null;
   }
 }
