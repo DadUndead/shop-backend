@@ -29,7 +29,7 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
 
-      ENV_STAGE: "${opt:stage, 'dev'}",
+      stage: "${opt:stage, 'dev'}",
       PGHOST: "${self:custom.dotenvVars.PGHOST, env:PGHOST, ''}",
       PGUSER: "${self:custom.dotenvVars.PGUSER, env:PGUSER, ''}",
       PGDATABASE: "${self:custom.dotenvVars.PGDATABASE, env:PGDATABASE, ''}",
@@ -75,9 +75,6 @@ const serverlessConfiguration: AWS = {
       dateFormat: 'yyyy-MM-dd hh:mm:ssZ',
       migrationDir: "migrations",
       environment: {
-        // ANOTHER_ENV: 'overriden value',
-        // COMPLEX_VAR: "${self:provider.env.ANOTHER_ENV, 'unexistent'}",
-        // EXAMPLE_ENV: false,
       }
     },
   },
