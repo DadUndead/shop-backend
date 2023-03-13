@@ -7,7 +7,10 @@
     "start": "cross-env STAGE=dev sls offline start",
     "test": "jest",
     "test:coverage": "jest --collect-coverage",
-    "deploy": "npm run test && sls deploy"
+    "deploy": "npm run test && sls deploy",
+    "migrate:up": "serverless migrate up",
+    "migrate:down": "serverless migrate down",
+    "migrate:new": "serverless migrate create -n"
   },
   "engines": {
     "node": ">=14.15.0"
@@ -15,13 +18,21 @@
   "dependencies": {
     "@middy/core": "^3.4.0",
     "@middy/http-cors": "^4.2.5",
-    "@middy/http-json-body-parser": "^3.4.0"
+    "@middy/http-error-handler": "^4.2.6",
+    "@middy/http-json-body-parser": "^3.6.2",
+    "@middy/validator": "^4.2.6",
+    "@types/pg": "^8.6.6",
+    "@types/winston": "^2.4.4",
+    "pg": "^8.9.0",
+    "pg-tx": "^1.0.1",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@serverless/typescript": "^3.0.0",
     "@types/aws-lambda": "^8.10.71",
     "@types/jest": "^29.4.0",
     "@types/node": "^14.18.36",
+    "aws-sdk": "^2.1324.0",
     "cross-env": "^7.0.3",
     "esbuild": "^0.14.54",
     "jest": "^29.4.3",
@@ -29,9 +40,10 @@
     "serverless": "^3.0.0",
     "serverless-auto-swagger": "^2.12.0",
     "serverless-esbuild": "^1.38.0",
+    "serverless-migrate-plugin": "^3.0.0",
     "serverless-offline": "^12.0.4",
     "ts-jest": "^29.0.5",
-    "ts-node": "^10.4.0",
+    "ts-node": "^10.9.1",
     "tsconfig-paths": "^3.9.0",
     "typescript": "^4.1.3"
   },

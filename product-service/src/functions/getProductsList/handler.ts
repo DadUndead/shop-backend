@@ -1,16 +1,20 @@
-import {formatJSONResponse, ValidatedEventAPIGatewayProxyEvent} from '@libs/api-gateway';
+import {formatErrorResponse, formatSuccessResponse, ValidatedEventAPIGatewayProxyEvent} from '@libs/api-gateway';
 import {middyfy} from '@libs/lambda';
 import {APIGatewayProxyResult} from "aws-lambda";
 import productsService from "../../service";
+import {logger} from "../../utils/logger";
 
-export const getProductsList: ValidatedEventAPIGatewayProxyEvent<unknown> = async (): Promise<APIGatewayProxyResult> => {
+export const getProductsList: ValidatedEventAPIGatewayProxyEvent<unknown> = async (event): Promise<APIGatewayProxyResult> => {
+  logger.logRequest(`Incoming event: ${JSON.stringify(event)}`)
 
   try {
     const items = await productsService.getProductsList()
 
-    return formatJSONResponse(200, items);
+    logger.logRequest(`Received products: ${JSON.stringify(items)}`)
+
+    return formatSuccessResponse(items);
   } catch (e) {
-    return formatJSONResponse(500, e)
+    return formatErrorResponse(e)
   }
 }
 

@@ -1,5 +1,5 @@
 import productsService from "../../../service";
-import {formatJSONResponse} from "@libs/api-gateway";
+import {formatErrorResponse, formatSuccessResponse} from "@libs/api-gateway";
 import {getProductsById} from "@functions/getProductsById/handler";
 import productMock from '../../../mocks/product.mock.json'
 
@@ -26,7 +26,7 @@ describe('getProductsById lambda', () => {
 
     expect(productsService.getProductById).toHaveBeenCalledTimes(1);
     expect(productsService.getProductById).toHaveBeenCalledWith(productId);
-    expect(result).toEqual(formatJSONResponse(200, item));
+    expect(result).toEqual(formatSuccessResponse(item));
   });
 
   it('should return 404 when item is not found', async () => {
@@ -39,7 +39,7 @@ describe('getProductsById lambda', () => {
 
     expect(productsService.getProductById).toHaveBeenCalledTimes(1);
     expect(productsService.getProductById).toHaveBeenCalledWith(productId);
-    expect(result).toEqual(formatJSONResponse(404, undefined));
+    expect(result).toEqual(formatErrorResponse({name: 'Error', message: 'Product not found'}, 404));
   });
 
   it('should return 500 when an error occurs', async () => {
@@ -53,6 +53,6 @@ describe('getProductsById lambda', () => {
 
     expect(productsService.getProductById).toHaveBeenCalledTimes(1);
     expect(productsService.getProductById).toHaveBeenCalledWith(productId);
-    expect(result).toEqual(formatJSONResponse(500, error));
+    expect(result).toEqual(formatErrorResponse(error));
   });
 });
