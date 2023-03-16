@@ -1,80 +1,64 @@
-import { importFileParser } from '../handler';
-import { S3CreateEvent } from 'aws-lambda';
-import * as AWSMock from 'aws-sdk-mock';
-import AWS from 'aws-sdk';
+import {importFileParser} from '../handler';
+import {S3CreateEvent} from 'aws-lambda';
+import AWSMock from 'aws-sdk-mock';
 
-xdescribe('importFileParser', () => {
-  beforeEach(() => {
+const AWS = require('aws-sdk');
+new AWS.S3({region: 'eu-west-1'});
+
+describe('importFileParser', () => {
+  const mockS3GetObject = jest.fn();
+  const mockS3CopyObject = jest.fn();
+  const mockS3DeleteObject = jest.fn();
+
+  beforeEach(async () => {
     AWSMock.setSDKInstance(AWS);
+
+    AWSMock.mock('S3', 'getObject', (params, callback) => {
+      mockS3GetObject(params)
+
+      callback(null, {});
+    });
+
+    AWSMock.mock('S3', 'copyObject', (params, callback) => {
+      mockS3CopyObject(params);
+      callback(null, {});
+    });
+
+    AWSMock.mock('S3', 'deleteObject', (params, callback) => {
+      mockS3DeleteObject(params);
+      callback(null, {});
+    });
   });
 
   afterEach(() => {
-    AWSMock.restore('S3');
+    AWSMock.restore();
   });
 
-  it('should parse a CSV file from S3', async () => {
-    const s3CreateEvent = {
-      Records: [
-        {
-          s3: {
-            bucket: {
-              name: 'my-bucket',
-            },
-            object: {
-              key: 'my-file.csv',
-            },
-          },
-        },
-      ],
+  test('should process CSV file and move it to parsed folder', async () => {
+    const event = {
+      Records: [{
+        s3: {
+          bucket: {name: 'bucket-name'},
+          object: {key: 'file.csv'}
+        }
+      }],
     } as S3CreateEvent;
 
-    const mockS3Stream = {
-      pipe: jest.fn().mockReturnThis(),
-      on: jest.fn().mockImplementation((event, cb) => {
-        if (event === 'data') {
-          cb({ col1: 'value1', col2: 'value2' });
-        } else if (event === 'error') {
-          cb(new Error('test error'));
-        } else if (event === 'end') {
-          cb();
-        }
-        return mockS3Stream;
-      }),
-    };
+    await importFileParser(event);
 
-    AWSMock.mock('S3', 'getObject', (_params, _callback) => {
-      return {
-        createReadStream: () => mockS3Stream,
-      }
+    expect(mockS3GetObject).toHaveBeenCalledWith({
+      Bucket: "bucket-name",
+      Key: "file.csv"
     });
 
-    AWSMock.mock('S3', 'copyObject', (_params, callback) => {
-      callback(null, {});
+    expect(mockS3CopyObject).toHaveBeenCalledWith({
+      Bucket: 'bucket-name',
+      CopySource: 'bucket-name/file.csv',
+      Key: 'parsed/file.csv',
     });
-
-    AWSMock.mock('S3', 'deleteObject', (_params, callback) => {
-      callback(null, {});
+    expect(mockS3DeleteObject).toHaveBeenCalledWith({
+      Bucket: 'bucket-name',
+      Key: 'file.csv',
     });
-
-    const mockLogsClient = {
-      send: jest.fn().mockImplementation(() => ({
-        catch: jest.fn(),
-      })),
-    };
-
-    const mockCloudWatchLogsClient = jest.fn().mockReturnValue(mockLogsClient);
-    jest.mock('@aws-sdk/client-cloudwatch-logs', () => ({
-      CloudWatchLogsClient: mockCloudWatchLogsClient,
-      PutLogEventsCommand: jest.fn(),
-    }));
-
-    await importFileParser(s3CreateEvent);
-
-    expect(mockS3Stream.pipe).toHaveBeenCalledWith(expect.any(Object));
-    expect(mockS3Stream.on).toHaveBeenCalledWith('data', expect.any(Function));
-    expect(mockS3Stream.on).toHaveBeenCalledWith('error', expect.any(Function));
-    expect(mockS3Stream.on).toHaveBeenCalledWith('end', expect.any(Function));
-    expect(mockLogsClient.send).toHaveBeenCalledTimes(3);
-    expect(mockCloudWatchLogsClient).toHaveBeenCalledWith({});
   });
 });

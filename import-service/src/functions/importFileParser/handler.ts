@@ -1,26 +1,21 @@
 import * as AWS from 'aws-sdk';
 import {S3CreateEvent} from "aws-lambda";
 import csvParser from "csv-parser";
-import {CloudWatchLogsClient, PutLogEventsCommand} from "@aws-sdk/client-cloudwatch-logs";
 
-const logsClient = new CloudWatchLogsClient({});
+const logsClient = new AWS.CloudWatchLogs({region: 'eu-west-1'});
 const log = (message: string) => {
   console.log(message)
 
-  return logsClient
-      .send(new PutLogEventsCommand({
-        logGroupName: 'import-file-parser',
-        logStreamName: 'importing-file',
-        logEvents: [
-          {
-            message,
-            timestamp: Date.now()
-          }
-        ],
-      }))
-      .catch(err => {
-        console.log(err, err?.stack)
-      })
+  return logsClient.putLogEvents({
+    logGroupName: '/import-file-parser',
+    logStreamName: 'importing-file',
+    logEvents: [
+      {
+        message,
+        timestamp: Date.now()
+      }
+    ],
+  })
 }
 export const importFileParser = async (event: S3CreateEvent) => {
   const bucket = event.Records[0].s3.bucket.name;
@@ -31,17 +26,22 @@ export const importFileParser = async (event: S3CreateEvent) => {
     Key: key,
   }).createReadStream()
 
-  s3Stream
-      .pipe(csvParser())
-      .on('data', async (data) => {
-        await log(JSON.stringify(data))
-      })
-      .on('error', async (error) => {
-        await log(error.message)
-      })
-      .on('end', async () => {
-        await log('CSV file processing completed')
-      })
+
+  s3Stream.pipe(csvParser())
+
+  await new Promise((resolve, reject) =>{
+    s3Stream.on('data', async (data) => {
+      log(JSON.stringify(data))
+    })
+    s3Stream.on('end', () => {
+      log('CSV file processing completed')
+      resolve(undefined)
+    });
+    s3Stream.on('error', (error)=>{
+      log(error.message)
+      reject(error)
+    });
+  });
 
   await s3.copyObject({
     Bucket: bucket,
