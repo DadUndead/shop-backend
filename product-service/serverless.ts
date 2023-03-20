@@ -3,6 +3,7 @@ import type {AWS} from '@serverless/typescript';
 import getProductsList from '@functions/getProductsList';
 import getProductsById from "@functions/getProductsById";
 import createProduct from "@functions/createProduct";
+import catalogBatchProcess from "@functions/catalogBatchProcess";
 
 const stage = process.env.STAGE!;
 console.log({stage});
@@ -36,20 +37,31 @@ const serverlessConfiguration: AWS = {
       PGPASSWORD: "${self:custom.dotenvVars.PGPASSWORD, env:PGPASSWORD, ''}",
       PGPORT: "${self:custom.dotenvVars.PGPORT, env:PGPORT, ''}",
     },
+    iamRoleStatements: [
+      {
+        Effect: "Allow",
+        Action: "sns:Publish",
+        Resource: {Ref: "createProductTopic"},
+      }
+    ]
   },
   functions: {
     getProductsById,
     getProductsList,
     createProduct,
+    catalogBatchProcess,
   },
   package: {
     individually: true,
   },
   custom: {
     dotenvVars: '${file(configs.js)}',
+    "serverless-offline":{
+      httpPort: 4000
+    },
     autoswagger: {
       apiType: 'http',
-      generateSwaggerOnDeploy: true,
+      generateSwaggerOnDeploy: false,
       basePath: `/dev/`,
       useStage: false,
       excludeStages: [], // TODO: make it available only for dev
@@ -69,13 +81,12 @@ const serverlessConfiguration: AWS = {
     },
     migrate: {
       stateFile: '.migrate2',
-      lastRunIndicator:'<*****',
+      lastRunIndicator: '<*****',
       noDescriptionText: '?',
       ignoreMissing: true,
       dateFormat: 'yyyy-MM-dd hh:mm:ssZ',
       migrationDir: "migrations",
-      environment: {
-      }
+      environment: {}
     },
   },
   resources: {
@@ -92,6 +103,41 @@ const serverlessConfiguration: AWS = {
           PubliclyAccessible: true
         },
       },
+      CatalogBatchProcessQueue: {
+        Type: "AWS::SQS::Queue",
+        Properties: {
+          QueueName: "CatalogBatchProcessQueue"
+        }
+      },
+      createProductTopic: {
+        Type: "AWS::SNS::Topic",
+        Properties: {
+          DisplayName: "Create Product Topic",
+          TopicName: "createProductTopic",
+        }
+      },
+      createProductTopicEmailSubscription1: {
+        Type: "AWS::SNS::Subscription",
+        Properties: {
+          Protocol: "email",
+          Endpoint: "ralict2@gmail.com",
+          TopicArn: {Ref: 'createProductTopic'},
+          FilterPolicy: {
+            price: [{numeric: [">", 100]}]
+          }
+        }
+      },
+      createProductTopicEmailSubscription2: {
+        Type: "AWS::SNS::Subscription",
+        Properties: {
+          Protocol: "email",
+          TopicArn: {Ref: 'createProductTopic'},
+          Endpoint: "ralict@mail.ru",
+          FilterPolicy: {
+            price: [{numeric: ["<=", 100]}]
+          }
+        }
+      }
     }
   }
 };

@@ -1,6 +1,8 @@
 import {CreateProductParams, Product} from "../model/types";
 import db, {Pool} from 'pg';
 import tx from 'pg-tx';
+import Ajv from 'ajv';
+import schema from '../functions/createProduct/schema';
 
 export default class ProductService {
   private productsTableName = 'products'
@@ -47,6 +49,12 @@ export default class ProductService {
   }
 
   async createProduct(createProductParams: CreateProductParams): Promise<Product> {
+    const ajv = new Ajv({coerceTypes: true});
+    const validate = ajv.compile(schema);
+
+    if (!validate(createProductParams)) {
+      throw new Error('invalid Create Product Params.')
+    }
 
     const query = {
       text: `
