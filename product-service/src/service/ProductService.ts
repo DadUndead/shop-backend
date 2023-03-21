@@ -1,51 +1,75 @@
 import {CreateProductParams, Product} from "../model/types";
-import db, {Pool} from 'pg';
-import tx from 'pg-tx';
 import Ajv from 'ajv';
 import schema from '../functions/createProduct/schema';
+import {DocumentClient} from "aws-sdk/clients/dynamodb";
+import {v4 as uuid} from 'uuid';
+import * as AWS from 'aws-sdk';
+
 
 export default class ProductService {
-  private productsTableName = 'products'
-  private stocksTableName = 'stocks'
-
-  private readonly pool: Pool;
+  private readonly dbClient: DocumentClient;
+  private readonly productsTableName = 'products'
+  private readonly stocksTableName = 'stocks'
 
   constructor() {
-    this.pool = new db.Pool();
+    this.dbClient = new DocumentClient();
   }
 
   async getProductsList(): Promise<Product[]> {
-    const query = `
-        SELECT p.*, CAST(p.price AS float), s.count
-        FROM ${this.productsTableName} p
-                 JOIN ${this.stocksTableName} s ON p.id = s.product_id;
-    `;
+    const params: DocumentClient.ScanInput = {
+      TableName: this.productsTableName
+    };
 
-    let result = null;
-    await tx(this.pool, async (db) => {
-      result = await db.query(query);
-    });
+    const products: Product[] = [];
+    const result = await this.dbClient.scan(params).promise();
 
-    return result?.rows || null;
+    for (const item of result.Items) {
+      const product: Product = {
+        ...item as Omit<Product, 'count'>,
+        count: 0
+      };
+      const stockParams: DocumentClient.GetItemInput = {
+        TableName: this.stocksTableName,
+        Key: {product_id: item.id}
+      };
+      const stockResult = await this.dbClient.get(stockParams).promise();
+
+      if (stockResult.Item && 'count' in stockResult.Item) {
+        product.count = stockResult.Item.count;
+      }
+
+      products.push(product);
+    }
+
+    return products;
   }
 
   async getProductById(id: string): Promise<Product | undefined> {
-    const query: db.QueryConfig = {
-      text: `
-          SELECT p.*, CAST(p.price AS float), s.count
-          FROM ${this.productsTableName} p
-                   JOIN ${this.stocksTableName} s ON p.id = s.product_id
-          WHERE p.id = $1;
-      `,
-      values: [id],
+    const params: DocumentClient.GetItemInput = {
+      TableName: this.productsTableName,
+      Key: {id}
+    };
+
+    const productResult = await this.dbClient.get(params).promise();
+    if (!productResult.Item) {
+      return undefined;
     }
 
-    let result = null;
-    await tx(this.pool, async (db) => {
-      result = await db.query(query);
-    });
+    const product: Product = {
+      ...productResult.Item as Omit<Product, 'count'>,
+      count: 0
+    };
 
-    return result?.rows[0] || null;
+    const stockParams: DocumentClient.GetItemInput = {
+      TableName: this.stocksTableName,
+      Key: {product_id: id}
+    };
+    const stockResult = await this.dbClient.get(stockParams).promise();
+    if (stockResult.Item && 'count' in stockResult.Item) {
+      product.count = stockResult.Item.count;
+    }
+
+    return product;
   }
 
   async createProduct(createProductParams: CreateProductParams): Promise<Product> {
@@ -56,38 +80,37 @@ export default class ProductService {
       throw new Error('invalid Create Product Params.')
     }
 
-    const query = {
-      text: `
-          WITH inserted_product AS (
-              -- Insert a new product into the "products" table and get its ID
-              INSERT INTO ${this.productsTableName} (title, description, price, image_url)
-                  VALUES ($1, $2, $3, $4)
-                  RETURNING *),
-               inserted_stock AS (
-                   INSERT INTO ${this.stocksTableName} (product_id, count)
-                       SELECT id, $5
-                       FROM inserted_product
-                       RETURNING count, product_id)
-          SELECT p.*,
-                 CAST(p.price AS float),
-                 s.count
-          FROM inserted_product p
-                   JOIN inserted_stock s ON p.id = s.product_id;
-      `,
-      values: [
-        createProductParams.title,
-        createProductParams.description,
-        createProductParams.price,
-        createProductParams.image_url,
-        createProductParams.count
-      ],
-    };
+    const id = uuid();
+    const {count, ...restCreateParams} = createProductParams;
 
-    let result = null;
-    await tx(this.pool, async (db) => {
-      result = await db.query(query);
-    });
+    const params: AWS.DynamoDB.DocumentClient.TransactWriteItemsInput = {
+      TransactItems: [
+        {
+          Put: {
+            TableName: this.productsTableName,
+            Item: {
+              id, ...restCreateParams
+            },
+            ConditionExpression: 'attribute_not_exists(id)'
+          }
+        },
+        {
+          Put: {
+            TableName: this.stocksTableName,
+            Item: {product_id: id, count},
+            ConditionExpression: 'attribute_not_exists(product_id)'
+          }
+        }
+      ]
+    }
 
-    return result?.rows[0] || null;
+    try {
+      await this.dbClient.transactWrite(params).promise();
+    } catch (err) {
+      console.error(`Error creating product: ${err}`);
+      throw err;
+    }
+
+    return await this.getProductById(id);
   }
 }

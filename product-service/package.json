@@ -22,9 +22,11 @@
     "@middy/http-json-body-parser": "^3.6.2",
     "@middy/validator": "^4.2.6",
     "@types/pg": "^8.6.6",
+    "@types/uuid": "^9.0.1",
     "@types/winston": "^2.4.4",
     "pg": "^8.9.0",
     "pg-tx": "^1.0.1",
+    "uuid": "^9.0.0",
     "winston": "^3.8.2"
   },
   "devDependencies": {
