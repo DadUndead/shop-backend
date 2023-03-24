@@ -35,6 +35,11 @@ const serverlessConfiguration: AWS = {
         Effect: "Allow",
         Action: "s3:*",
         Resource: "arn:aws:s3:::ug-uploads/*"
+      },
+      {
+        Effect: "Allow",
+        Action: ["sqs:SendMessage", "sqs:GetQueueUrl"],
+        Resource: "arn:aws:sqs:eu-west-1:655884277537:CatalogBatchProcessQueue"
       }
     ]
   },
@@ -44,6 +49,7 @@ const serverlessConfiguration: AWS = {
   },
   package: {individually: true},
   custom: {
+    dotenvVars: '${file(configs.js)}',
     autoswagger: {
       apiType: 'http',
       generateSwaggerOnDeploy: true,

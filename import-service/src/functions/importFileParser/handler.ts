@@ -1,6 +1,6 @@
 import * as AWS from 'aws-sdk';
 import {S3CreateEvent} from "aws-lambda";
-import csvParser from "csv-parser";
+import {parseStream} from 'fast-csv';
 
 const logsClient = new AWS.CloudWatchLogs({region: 'eu-west-1'});
 const log = (message: string) => {
@@ -21,27 +21,42 @@ export const importFileParser = async (event: S3CreateEvent) => {
   const bucket = event.Records[0].s3.bucket.name;
   const key = event.Records[0].s3.object.key;
   const s3 = new AWS.S3({region: 'eu-west-1'})
-  const s3Stream = s3.getObject({
+  const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+  const csvFile = s3.getObject({
     Bucket: bucket,
     Key: key,
   }).createReadStream()
 
+  try {
+    await new Promise((resolve, reject) => {
+      parseStream(csvFile, {headers: true})
+          .on('data', async (data) => {
+            log(JSON.stringify(data))
 
-  s3Stream.pipe(csvParser())
+            const messageParams = {
+              MessageBody: JSON.stringify(data),
+              QueueUrl: process.env.CatalogBatchProcessQueueUrl
+            };
 
-  await new Promise((resolve, reject) =>{
-    s3Stream.on('data', async (data) => {
-      log(JSON.stringify(data))
-    })
-    s3Stream.on('end', () => {
-      log('CSV file processing completed')
-      resolve(undefined)
+            try {
+              const msg = await sqs.sendMessage(messageParams).promise();
+              console.log("Message sent:", msg.MessageId);
+            } catch (err) {
+              console.log("Error sending message:", err);
+            }
+          })
+          .on('end', () => {
+            log('CSV file processing completed')
+            resolve(undefined)
+          })
+          .on('error', (error) => {
+            log(error.message)
+            reject(error)
+          });
     });
-    s3Stream.on('error', (error)=>{
-      log(error.message)
-      reject(error)
-    });
-  });
+  } catch (error) {
+    log(error.message)
+  }
 
   await s3.copyObject({
     Bucket: bucket,

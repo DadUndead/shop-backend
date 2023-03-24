@@ -3,6 +3,7 @@ import type {AWS} from '@serverless/typescript';
 import getProductsList from '@functions/getProductsList';
 import getProductsById from "@functions/getProductsById";
 import createProduct from "@functions/createProduct";
+import catalogBatchProcess from "@functions/catalogBatchProcess";
 
 const stage = process.env.STAGE!;
 console.log({stage});
@@ -30,26 +31,47 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
 
       stage: "${opt:stage, 'dev'}",
-      PGHOST: "${self:custom.dotenvVars.PGHOST, env:PGHOST, ''}",
-      PGUSER: "${self:custom.dotenvVars.PGUSER, env:PGUSER, ''}",
-      PGDATABASE: "${self:custom.dotenvVars.PGDATABASE, env:PGDATABASE, ''}",
-      PGPASSWORD: "${self:custom.dotenvVars.PGPASSWORD, env:PGPASSWORD, ''}",
-      PGPORT: "${self:custom.dotenvVars.PGPORT, env:PGPORT, ''}",
     },
+    iamRoleStatements: [
+      {
+        Effect: "Allow",
+        Action: "sns:Publish",
+        Resource: {Ref: "createProductTopic"},
+      },
+      {
+        Effect: "Allow",
+        Action: [
+          "dynamodb:DescribeTable",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem",
+        ],
+        Resource: "arn:aws:dynamodb:eu-west-1:*:*"
+      }
+    ]
   },
   functions: {
     getProductsById,
     getProductsList,
     createProduct,
+    catalogBatchProcess,
   },
   package: {
     individually: true,
   },
   custom: {
     dotenvVars: '${file(configs.js)}',
+    "serverless-offline": {
+      httpPort: 4000
+    },
     autoswagger: {
       apiType: 'http',
-      generateSwaggerOnDeploy: true,
+      generateSwaggerOnDeploy: false,
       basePath: `/dev/`,
       useStage: false,
       excludeStages: [], // TODO: make it available only for dev
@@ -69,29 +91,87 @@ const serverlessConfiguration: AWS = {
     },
     migrate: {
       stateFile: '.migrate2',
-      lastRunIndicator:'<*****',
+      lastRunIndicator: '<*****',
       noDescriptionText: '?',
       ignoreMissing: true,
       dateFormat: 'yyyy-MM-dd hh:mm:ssZ',
       migrationDir: "migrations",
-      environment: {
-      }
+      environment: {}
     },
   },
   resources: {
     Resources: {
-      PostgreSqlRDSInstance: {
-        Type: 'AWS::RDS::DBInstance',
+      products: {
+        Type: "AWS::DynamoDB::Table",
         Properties: {
-          MasterUsername: "${self:custom.dotenvVars.PGUSER, env:PGUSER, ''}",
-          MasterUserPassword: "${self:custom.dotenvVars.PGPASSWORD, env:PGPASSWORD, ''}",
-          AllocatedStorage: 20,
-          DBName: "${self:custom.dotenvVars.PGDATABASE, env:PGDATABASE, ''}",
-          DBInstanceClass: 'db.t3.micro',
-          Engine: 'postgres',
-          PubliclyAccessible: true
-        },
+          TableName: 'products',
+          AttributeDefinitions: [{
+            AttributeName: 'id',
+            AttributeType: 'S',
+          }],
+          KeySchema: [{
+            AttributeName: 'id',
+            KeyType: 'HASH'
+          }],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1
+          }
+        }
       },
+      stocks: {
+        Type: "AWS::DynamoDB::Table",
+        Properties: {
+          TableName: 'stocks',
+          AttributeDefinitions: [{
+            AttributeName: 'product_id',
+            AttributeType: 'S',
+          }],
+          KeySchema: [{
+            AttributeName: 'product_id',
+            KeyType: 'HASH'
+          }],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1
+          }
+        }
+      },
+      CatalogBatchProcessQueue: {
+        Type: "AWS::SQS::Queue",
+        Properties: {
+          QueueName: "CatalogBatchProcessQueue"
+        }
+      },
+      createProductTopic: {
+        Type: "AWS::SNS::Topic",
+        Properties: {
+          DisplayName: "Create Product Topic",
+          TopicName: "createProductTopic",
+        }
+      },
+      createProductTopicEmailSubscription1: {
+        Type: "AWS::SNS::Subscription",
+        Properties: {
+          Protocol: "email",
+          Endpoint: "ralict2@gmail.com",
+          TopicArn: {Ref: 'createProductTopic'},
+          FilterPolicy: {
+            price: [{numeric: [">", 100]}]
+          }
+        }
+      },
+      createProductTopicEmailSubscription2: {
+        Type: "AWS::SNS::Subscription",
+        Properties: {
+          Protocol: "email",
+          TopicArn: {Ref: 'createProductTopic'},
+          Endpoint: "ralict@mail.ru",
+          FilterPolicy: {
+            price: [{numeric: ["<=", 100]}]
+          }
+        }
+      }
     }
   }
 };

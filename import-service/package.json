@@ -14,10 +14,12 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch-logs": "^3.289.0",
+    "@fast-csv/parse": "^4.3.6",
     "@middy/core": "^3.4.0",
     "@middy/http-cors": "^4.2.7",
     "@middy/http-json-body-parser": "^3.4.0",
-    "csv-parser": "^3.0.0"
+    "csv-parser": "^3.0.0",
+    "fast-csv": "^4.3.6"
   },
   "devDependencies": {
     "@serverless/typescript": "^3.0.0",

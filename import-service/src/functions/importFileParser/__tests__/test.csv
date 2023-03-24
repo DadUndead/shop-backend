@@ -1,3 +1,11 @@
-id,name
-1,John
-2,Jane
+title,price,description,count
+Gibson Les Paul Standard,19,"The Gibson Les Paul Standard is a classic guitar known for its rich, warm sound. This model features a solid mahogany body and neck, with a maple top and rosewood fingerboard.",5
+Fender Stratocaster,1499,"The Fender Stratocaster is an iconic guitar that's been used by countless musicians. This model features a contoured alder body, maple neck, and rosewood fingerboard.",3
+PRS Custom 24,2699,"The PRS Custom 24 is a high-end guitar that's perfect for players who demand the best. This model features a carved maple top, mahogany back, and rosewood fingerboard.",1
+Taylor 814ce,3499,"The Taylor 814ce is a beautiful acoustic-electric guitar that's perfect for any style of music. This model features a solid spruce top, rosewood back and sides, and a mahogany neck.",2
+Gibson SG Standard,17,"The Gibson SG Standard is a classic guitar that's been used by rock legends like Angus Young and Tony Iommi. This model features a mahogany body and neck, with a rosewood fingerboard.",6
+Epiphone Les Paul Standard,499,"The Epiphone Les Paul Standard is a great guitar for players on a budget. This model features a solid mahogany body and neck, with a maple top and rosewood fingerboard.",8
+Ibanez RG550,1199,"The Ibanez RG550 is a shredder's dream guitar, with a fast neck and hot pickups. This model features a basswood body, maple neck, and rosewood fingerboard.",4
+Martin D-28,3299,"The Martin D-28 is a classic acoustic guitar that's been used by generations of musicians. This model features a solid spruce top, rosewood back and sides, and a mahogany neck.",2
+Gretsch G5420T,899,"The Gretsch G5420T is a versatile guitar that can handle everything from rock to jazz. This model features a maple body and neck, with a rosewood fingerboard.",3
+Ernie Ball Music Man Majesty,3299,"The Ernie Ball Music Man Majesty is a signature guitar designed in collaboration with John Petrucci. This model features a carved maple top, basswood body, and ebony fingerboard.",1
