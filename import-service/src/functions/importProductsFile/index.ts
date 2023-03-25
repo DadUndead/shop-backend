@@ -10,6 +10,13 @@ export default {
         cors: true,
         summary: "Creates a pre-sign url for uploading .csv file",
         description: "Creates a pre-sign url for uploading .csv file",
+        authorizer: {
+          name: 'basicAuthorizer',
+          arn: '${self:custom.authArn}',
+          type: 'request',
+          identitySource: 'method.request.header.Authorization',
+          resultTtlInSeconds: 0,
+        },
         request: {
           parameters: {
             querystrings: {
@@ -28,7 +35,7 @@ export default {
             description: 'Server Error'
           }
         }
-      },
+      }
     },
   ],
 }

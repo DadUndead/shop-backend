@@ -10,4 +10,8 @@ jspm_packages
 coverage/
 swagger/
 product-service/.env.local
+import-service/.env.local
+*.csv
+authorization-service/.env
 .migrate2
+.env

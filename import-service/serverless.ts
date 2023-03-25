@@ -25,7 +25,7 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       stage: "${opt:stage, 'dev'}",
     },
-    iamRoleStatements:[
+    iamRoleStatements: [
       {
         Effect: "Allow",
         Action: "s3:ListBucket",
@@ -40,6 +40,11 @@ const serverlessConfiguration: AWS = {
         Effect: "Allow",
         Action: ["sqs:SendMessage", "sqs:GetQueueUrl"],
         Resource: "arn:aws:sqs:eu-west-1:655884277537:CatalogBatchProcessQueue"
+      },
+      {
+        Effect: "Allow",
+        Action: ["lambda:InvokeFunction"],
+        Resource: '${self:custom.authArn}'
       }
     ]
   },
@@ -50,9 +55,10 @@ const serverlessConfiguration: AWS = {
   package: {individually: true},
   custom: {
     dotenvVars: '${file(configs.js)}',
+    authArn: 'arn:aws:lambda:eu-west-1:655884277537:function:authorization-service-dev-basicAuthorizer',
     autoswagger: {
       apiType: 'http',
-      generateSwaggerOnDeploy: true,
+      generateSwaggerOnDeploy: false,
       basePath: `/dev/`,
       useStage: false,
       excludeStages: [], // TODO: make it available only for dev
@@ -69,8 +75,26 @@ const serverlessConfiguration: AWS = {
       concurrency: 10,
       watch: './**/*.(js|ts)',
     },
-    'serverless-offline':{
+    'serverless-offline': {
       httpPort: 4000,
+    }
+  },
+  resources: {
+    Resources: {
+      GatewayResponse:
+        {
+          Type: 'AWS::ApiGateway::GatewayResponse',
+          Properties: {
+            RestApiId: {
+              Ref: 'ApiGatewayRestApi'
+            },
+            ResponseType: "DEFAULT_4XX",
+            ResponseParameters: {
+              'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+              'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+            },
+          }
+        }
     }
   }
 };
